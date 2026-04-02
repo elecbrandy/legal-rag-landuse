@@ -2,7 +2,7 @@ services:
   chromadb:
     image: chromadb/chroma:latest
     volumes:
-      - ./chroma_data:/chroma/chroma
+      - ./volume/chroma_data:/chroma/chroma
     ports:
       - "8001:8000"
     env_file:
