@@ -1,4 +1,4 @@
-service:
+services:
   chromadb:
     image: chromadb/chroma:latest
     volumes:
@@ -20,6 +20,8 @@ service:
       - chromadb
     env_file:
       - .env
+    volumes:
+      - ./volume/sqlite:/app/volume/sqlite
 
   frontend:
     build:

@@ -1,7 +1,8 @@
 import aiosqlite
+import os
 from uuid import UUID
-from model.chat import ChatMessage
-from core.config import get_settings
+from src.model.chat import ChatMessage
+from src.core.config import get_settings
 
 settings = get_settings()
 DB_PATH = settings.sqlite_db_path
@@ -10,6 +11,7 @@ async def init_db() -> None:
     """
     앱 시작 시 테이블 생성.
     """
+    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
     async with aiosqlite.connect(DB_PATH) as db:
         await db.execute("""
             CREATE TABLE IF NOT EXISTS chat_messages (

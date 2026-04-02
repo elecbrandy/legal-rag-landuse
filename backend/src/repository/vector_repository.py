@@ -1,5 +1,5 @@
-from model.law import LawChunk, LawSummary
-from model.chat import SourceChunk
+from src.model.law import LawChunk, LawSummary
+from src.model.chat import SourceChunk
 
 TOP_K = 5  # 기본 검색 결과 수
 

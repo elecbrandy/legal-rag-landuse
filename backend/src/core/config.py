@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     chroma_collection_name: str = "law_chunks"
 
     # SQLite
-    sqlite_db_path: str = "./volume/chat_history.db"
+    sqlite_db_path: str = "./volume/sqlite/chat_history.db"
 
     # 법령정보센터
     law_api_key: str

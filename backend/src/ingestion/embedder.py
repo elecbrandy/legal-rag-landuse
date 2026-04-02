@@ -1,9 +1,8 @@
 import asyncio
 
 from openai import AsyncOpenAI
-
-from core.config import get_settings
-from model.law import LawChunk
+from src.core.config import get_settings
+from src.model.law import LawChunk
 
 settings = get_settings()
 

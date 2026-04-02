@@ -1,4 +1,4 @@
-from model.law import LawArticle, LawChunk
+from src.model.law import LawArticle, LawChunk
 
 # 청크 설정
 CHUNK_SIZE = 500        # 최대 글자 수

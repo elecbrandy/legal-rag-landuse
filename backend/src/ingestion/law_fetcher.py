@@ -1,6 +1,7 @@
 import httpx
-from core.config import get_settings
-from model.law import LawArticle
+import xml.etree.ElementTree as ET
+from src.core.config import get_settings
+from src.model.law import LawArticle
 
 settings = get_settings()
 
@@ -58,3 +59,35 @@ def _parse_articles(law_id: str, data: dict) -> list[LawArticle]:
         )
 
     return articles
+
+async def search_law_id_by_name(law_name: str) -> str | None:
+    """
+    법령명으로 검색하여 법령일련번호(MST)를 반환.
+    Args:
+        law_name (str): 검색할 법령명 (예: "국토계획법")
+    Returns:
+        str | None: 일련번호(MST) 또는 검색 실패 시 None
+    """
+    url = "http://www.law.go.kr/DRF/lawSearch.do"
+    params = {
+        "OC": settings.law_api_key,
+        "target": "law",
+        "type": "XML",
+        "query": law_name,
+    }
+
+    async with httpx.AsyncClient(timeout=10) as client:
+        resp = await client.get(url, params=params)
+        if resp.status_code != 200:
+            return None
+        
+        root = ET.fromstring(resp.content)
+        for law in root.findall(".//law"):
+            fetched_name = law.findtext("법령명한글")
+            mst = law.findtext("법령일련번호")
+            
+            # 검색 결과 중 이름이 정확히 일치하는 것만 추출
+            if fetched_name and fetched_name.strip() == law_name:
+                return mst
+                
+    return None

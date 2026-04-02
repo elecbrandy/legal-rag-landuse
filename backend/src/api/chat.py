@@ -1,13 +1,18 @@
 from uuid import UUID
-
-from fastapi import APIRouter
-
-from core.deps import ChromaCollectionDep, OpenAIDep
-from model.chat import ChatHistoryResponse, ChatRequest, ChatResponse
-from repsitory import chat_repository
-from service import rag_service
+from fastapi import APIRouter, Query
+from src.core.deps import ChromaCollectionDep, OpenAIDep
+from src.model.chat import ChatHistoryResponse, ChatRequest, ChatResponse
+from src.repository import chat_repository
+from src.service import rag_service
+from src.service.rag_service import AVAILABLE_MODELS, DEFAULT_MODEL
 
 router = APIRouter(prefix="/chat", tags=["chat"])
+
+
+@router.get("/models")
+async def list_models() -> dict:
+    """사용 가능한 모델 목록 반환."""
+    return {"models": AVAILABLE_MODELS, "default": DEFAULT_MODEL}
 
 
 @router.post("", response_model=ChatResponse)
@@ -15,40 +20,23 @@ async def chat(
     request: ChatRequest,
     collection: ChromaCollectionDep,
     openai_client: OpenAIDep,
+    model: str = Query(default=DEFAULT_MODEL, description="사용할 LLM 모델"),
 ) -> ChatResponse:
     """
-    사용자 질문에 대해 RAG 기반 답변 반환
-    Args:
-        request (ChatRequest): 사용자 질문과 세션 정보
-        collection: ChromaDB 컬렉션 객체 (의존성 주입)
-        openai_client: OpenAI 비동기 클라이언트 (의존성 주입)
-    Returns:
-        ChatResponse: 생성된 답변과 관련 정보
+    RAG 기반 답변 반환.
+    model 쿼리 파라미터로 런타임 모델 교체 가능.
+    예: POST /chat?model=openai:gpt-4o-mini
     """
-    return await rag_service.answer(request, collection, openai_client)
+    return await rag_service.answer(request, collection, openai_client, model=model)
 
 
 @router.get("/history/{session_id}", response_model=ChatHistoryResponse)
 async def get_history(session_id: UUID) -> ChatHistoryResponse:
-    """
-    세션 ID로 대화 히스토리 조회
-    Args:
-        session_id (UUID): 세션 ID
-    Returns:
-        ChatHistoryResponse: 대화 히스토리
-    """
     messages = await chat_repository.get_history(session_id)
     return ChatHistoryResponse(session_id=session_id, messages=messages)
 
 
 @router.delete("/history/{session_id}")
 async def delete_history(session_id: UUID) -> dict:
-    """
-    세션 대화 히스토리 삭제
-    Args:
-        session_id (UUID): 세션 ID
-    Returns:
-        dict: 삭제된 메시지 수
-    """
     deleted = await chat_repository.delete_session(session_id)
     return {"deleted_count": deleted}

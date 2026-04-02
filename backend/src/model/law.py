@@ -28,13 +28,11 @@ class IngestRequest(BaseModel):
     """법령 ID 목록을 받아 해당 법령들을 수집 및 청크화하여 ChromaDB에 저장하는 요청 모델"""
     law_ids: list[str] = Field(..., description="수집할 법령 ID 목록")
 
-
 class IngestResponse(BaseModel):
     """법령 수집 및 청크화 결과를 반환하는 모델"""
     ingested_laws: list[str]
     total_chunks: int
     finished_at: datetime = Field(default_factory=datetime.utcnow)
-
 
 # 법령 목록 조회
 class LawSummary(BaseModel):
@@ -43,8 +41,13 @@ class LawSummary(BaseModel):
     law_name: str
     chunk_count: int
 
-
+# 법령 목록 조회 응답
 class LawListResponse(BaseModel):
     """법령 목록 조회 시 반환되는 응답 모델"""
     laws: list[LawSummary]
     total: int
+
+# 법령명 목록을 받아 검색 후 수집하는 요청 모델
+class IngestByNameRequest(BaseModel):
+    """법령명 목록을 받아 검색 후 수집하는 요청 모델"""
+    law_names: list[str] = Field(..., description="수집할 법령명 목록")
