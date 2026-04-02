@@ -1,4 +1,4 @@
-services:
+service:
   chromadb:
     image: chromadb/chroma:latest
     volumes:

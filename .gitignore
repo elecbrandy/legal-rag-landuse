@@ -43,3 +43,6 @@ __screenshots__/
 .env.*.local
 *.txt
 *.sh
+
+# volume
+volume/
